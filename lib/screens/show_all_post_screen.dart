@@ -11,6 +11,7 @@ import 'package:getx_project/screens/sign_in.dart';
 import 'package:getx_project/screens/user_profile_screen.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../Models/user_model.dart';
+import 'chat/rooms.dart';
 
 class AllPostScreen extends StatefulWidget {
   const AllPostScreen({
@@ -78,7 +79,9 @@ class _AllPostScreenState extends State<AllPostScreen> {
                                       ),
                                       Tab(
                                         icon: IconButton(
-                                            onPressed: () {},
+                                            onPressed: () {
+                                              Get.to(const RoomsPage());
+                                            },
                                             icon: const Icon(Icons.post_add)),
                                       ),
                                     ],
