@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+
 import 'package:get/get.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
@@ -51,7 +52,7 @@ class ImageController extends GetxController {
         debugPrint("image.path: ${image.path}");
         update([imageUpdateKey]);
         // ignore: use_build_context_synchronously
-        uploadImagetoFirebasestorage(context);
+        uploadProfileImagetoFirebaseStorage(context);
       }
     }
   }
@@ -105,7 +106,7 @@ class ImageController extends GetxController {
   }
 
   ///////////////////////////////Upload image to a firebase////////////////////////
-  Future uploadImagetoFirebasestorage(BuildContext context) async {
+  Future uploadProfileImagetoFirebaseStorage(BuildContext context) async {
     try {
       String fileName = DateTime.now().millisecondsSinceEpoch.toString();
 
@@ -129,6 +130,12 @@ class ImageController extends GetxController {
       }
       debugPrint("uid:$uid");
       try {
+        // await FirebaseChatCore.instance.ChatUserProfile(
+        //   types.User(id: uid,
+        //   imageUrl: imageUrl
+        //   )
+
+        // );
         DocumentReference currentUserReference = usersReference.doc(uid);
         await currentUserReference.update({"profileImageUrl": imageUrl});
         return true;

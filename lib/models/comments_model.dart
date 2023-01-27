@@ -1,58 +1,48 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
-class CommentsModel {
-  late final String id;
-  late final String commentText;
-  late final String uid;
-  late final String profileImageUrl;
-  late final String postId;
-  late final String dateTime;
-  late final int commentsCount;
-  late final String userName;
-
-  // default constructor
-  CommentsModel({
-    required this.uid,
+class CommentModel {
+  CommentModel({
+    required this.username,
+    required this.commenttext,
+    required this.datetimecomment,
     required this.id,
-    required this.commentText,
-    required this.profileImageUrl,
-    required this.postId,
-    required this.dateTime,
-    required this.commentsCount,
-    required this.userName,
-  });
-
-  // for post creation
-  CommentsModel.withoutId({
     required this.uid,
-    required this.commentText,
-    required this.profileImageUrl,
-    required this.postId,
-    required this.dateTime,
-    required this.userName,
+    required this.datetimepostid,
+    required this.commentImageUrl,
+    required this.userImageUrl,
   });
-  // when we read data from firebase this will be used for converting DocumentSnapshot to model object
-  CommentsModel.fromDocumentSnapshot(
-      {required DocumentSnapshot documentSnapshot}) {
-    id = documentSnapshot.id;
-    uid = documentSnapshot['uid'] ?? "";
-    commentText = documentSnapshot["commentText"];
-    postId = documentSnapshot["postId"] ?? "";
-    profileImageUrl = documentSnapshot["profileImageUrl"] ?? "";
-    commentsCount = documentSnapshot["commentsCount"] ?? 0;
-    dateTime = documentSnapshot["dateTime"] ?? DateTime.now().toString();
-    userName = documentSnapshot["userName"];
+  late final String username;
+  late final String commenttext;
+  late final String datetimecomment;
+  late final String id;
+  late final String uid;
+  late final String postid;
+  late final String datetimepostid;
+  late final String commentImageUrl;
+  late final String userImageUrl;
+  CommentModel.fromJson(Map<String, dynamic> doc, String docId) {
+    username = doc['username'] ?? "";
+    commenttext = doc['commenttext'] ?? "";
+    datetimecomment = doc['datetimecomment'] ?? "";
+    uid = doc['uid'] ?? "";
+    postid = doc['postid'] ?? "";
+    datetimepostid = doc['datetimepostid'] ?? "";
+    commentImageUrl = doc['commentImageUrl'] ?? "";
+    userImageUrl = doc['userImageUrl'] ?? "";
+    id = docId;
   }
 
-  // this will be used to convert CommentsModel.withoutId to Map<String,dynamic>
   Map<String, dynamic> toJson() {
-    final data = <String, dynamic>{};
-    data['uid'] = uid;
-    data['commentText'] = commentText;
-    data['postId'] = postId;
-    data['profileImageUrl'] = profileImageUrl;
-    data['dateTime'] = dateTime;
-    data['userName'] = userName;
-    return data;
+    // ignore: no_leading_underscores_for_local_identifiers
+    final _data = <String, dynamic>{};
+    _data['username'] = username;
+    _data['commenttext'] = commenttext;
+    _data['datetimecomment'] = datetimecomment;
+    _data['uid'] = uid;
+    _data['id'] = id;
+    _data['postid'] = postid;
+    _data['datetimepostid'] = datetimepostid;
+    _data['commentImageurl'] = commentImageUrl;
+    _data['userImageUrl'] = userImageUrl;
+
+    return _data;
   }
 }

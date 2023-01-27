@@ -3,10 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:getx_project/controller/image_controller.dart';
+import 'package:getx_project/models/post_model.dart';
+import 'package:getx_project/models/user_model_meta_data.dart';
 import 'package:getx_project/screens/comment_screen.dart';
-import 'package:getx_project/screens/home_screen.dart';
+
+import 'package:getx_project/screens/show_all_post_screen.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import '../models/user_model.dart';
+
 import '../widgets/custom_text.dart';
 import 'create_post_screen.dart';
 
@@ -20,19 +23,22 @@ class UserProfileScreen extends StatefulWidget {
 class _UserProfileScreenState extends State<UserProfileScreen> {
   CollectionReference userReference =
       FirebaseFirestore.instance.collection("users");
+
+  CollectionReference postReference =
+      FirebaseFirestore.instance.collection("posts");
   User? user = FirebaseAuth.instance.currentUser;
-  Future<UserModelFireBase> getdata() async {
+  Future<UserProfileModel> getdata() async {
     DocumentSnapshot ref = await userReference.doc(user!.uid).get();
-    UserModelFireBase data = UserModelFireBase.fromDocumentSnapshot(ref);
+    UserProfileModel data = UserProfileModel.fromDocumentSnapshot(ref);
     return data;
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<UserModelFireBase>(
+    return FutureBuilder<UserProfileModel>(
         future: getdata(),
         builder:
-            (BuildContext context, AsyncSnapshot<UserModelFireBase> snapshot) {
+            (BuildContext context, AsyncSnapshot<UserProfileModel> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Scaffold();
           }
@@ -43,7 +49,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 child: Text("null"),
               );
             }
-            UserModelFireBase detail = snapshot.data!;
+            UserProfileModel detail = snapshot.data!;
             return Scaffold(
                 resizeToAvoidBottomInset: false,
                 //////////////////////App Bar ///////////////////////////
@@ -78,8 +84,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           backgroundColor: Colors.white,
                           backgroundImage: NetworkImage(detail.profileImageUrl),
                         ),
-                        accountName: Text(detail.name),
-                        accountEmail: Text(detail.email)),
+                        accountName: Text(detail.firstName),
+                        accountEmail: Text(detail.metadata.email)),
                     TextButton.icon(
                         onPressed: () {
                           Get.to(CreatePostScreen(userDetail: detail));
@@ -94,7 +100,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             textAlign: TextAlign.start)),
                     TextButton.icon(
                         onPressed: () {
-                          Get.to(const HomeScreen());
+                          Get.to(const AllPostScreen());
                         },
                         icon: const Icon(Icons.post_add,
                             size: 30, color: Colors.black),
@@ -105,9 +111,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             textFontSize: 16.toDouble(),
                             textAlign: TextAlign.start)),
                     TextButton.icon(
-                        onPressed: () {
-                          Get.to(const CommentsScreen());
-                        },
+                        onPressed: () {},
                         icon: const Icon(Icons.post_add,
                             size: 30, color: Colors.black),
                         label: CustomText(
@@ -139,9 +143,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                                     onTap: () {
                                                       logic.pickUserCoverImage(
                                                           context);
-                                                      logic
-                                                          .uploadCoverImagetoFirebasestorage(
-                                                              context);
                                                     },
                                                     child: Container(
                                                       margin:
@@ -152,7 +153,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                                           MediaQuery.of(context)
                                                               .size
                                                               .width,
-                                                      color: Colors.grey,
                                                       child: ClipRRect(
                                                         child: SizedBox(
                                                             width:
@@ -178,9 +178,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                                             logic
                                                                 .pickUserCoverImage(
                                                                     context);
-                                                            logic
-                                                                .uploadCoverImagetoFirebasestorage(
-                                                                    context);
                                                           },
                                                           child: SizedBox(
                                                             height: 200,
@@ -199,213 +196,245 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                         ),
                                         //////////////////////User Profile image ///////////////////////////
                                         Positioned(
-                                          top: 30,
-                                          left: MediaQuery.of(context)
-                                                      .size
-                                                      .width /
-                                                  2 -
-                                              50,
+                                          top: 100,
+                                          left: 0,
                                           child: GestureDetector(
-                                            onTap: () {
-                                              _.pickUserProfileImage(context);
-                                            },
-                                            child: _.imageFile != null
-                                                ? ClipRRect(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            100),
-                                                    child: SizedBox(
-                                                        width: 100,
-                                                        height: 100,
-                                                        child: Image.file(
-                                                          _.imageFile!,
-                                                          fit: BoxFit.cover,
-                                                        )),
-                                                  )
-                                                : Container(),
-                                          ),
-                                        ),
-
-                                        Positioned(
-                                          top: 90,
-                                          left: 150,
-                                          child: IconButton(
-                                              onPressed: () async {
-                                                await _.pickUserProfileImage(
-                                                    context);
+                                              onTap: () {
+                                                _.pickUserProfileImage(context);
                                               },
-                                              icon: const Icon(
-                                                Icons.camera_alt,
-                                                color: Colors.white,
-                                                size: 30,
-                                              )),
+                                              child: _.imageFile != null
+                                                  ? ClipRRect(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              100),
+                                                      child: SizedBox(
+                                                          width: 100,
+                                                          height: 100,
+                                                          child: Image.file(
+                                                            _.imageFile!,
+                                                            fit: BoxFit.cover,
+                                                          )),
+                                                    )
+                                                  : Container()),
                                         ),
                                       ],
                                     )
                                   : Stack(
+                                      alignment: Alignment.bottomLeft,
                                       clipBehavior: Clip.none,
                                       children: [
                                         GestureDetector(
                                             onTap: () {
                                               _.pickUserCoverImage(context);
-                                              _.uploadCoverImagetoFirebasestorage(
-                                                  context);
                                             },
-                                            child: SizedBox(
+                                            child: Container(
+                                              margin: const EdgeInsets.only(
+                                                bottom: 30,
+                                              ),
                                               height: 200,
-                                              width: MediaQuery.of(context)
-                                                  .size
-                                                  .width,
+                                              width: Get.width,
                                               child: Image.network(
                                                 detail.coverImageUrl,
                                                 fit: BoxFit.cover,
                                               ),
                                             )),
-                                        Positioned(
-                                          left: 160,
-                                          top: 105,
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              _.pickUserProfileImage(context);
-                                              _.uploadImagetoFirebasestorage(
-                                                  context);
-                                            },
-                                            child: ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(100),
-                                                child: SizedBox(
-                                                  height: 100,
-                                                  width: 100,
+                                        InkWell(
+                                          onTap: () {
+                                            _.pickUserProfileImage(context);
+                                          },
+                                          child: Padding(
+                                            padding:
+                                                const EdgeInsets.only(left: 10),
+                                            child: SizedBox(
+                                              height: 80,
+                                              width: 80,
+                                              child: ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          100),
                                                   child: Image.network(
                                                     detail.profileImageUrl,
                                                     fit: BoxFit.cover,
-                                                  ),
-                                                )),
+                                                  )),
+                                            ),
                                           ),
-                                        )
+                                        ),
                                       ],
                                     );
                             }),
                         Expanded(
-                          child: ListView.builder(
-                            itemCount: 1,
-                            itemBuilder: (context, index) {
-                              return Card(
-                                child: SizedBox(
-                                  height: 350,
-                                  child: Column(
-                                    children: [
-                                      ListTile(
-                                        leading: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(100),
-                                          child: SizedBox(
-                                            height: 50,
-                                            width: 50,
-                                            child:
-                                                // ignore: unnecessary_null_comparison
-                                                detail.profileImageUrl == null
-                                                    ? Container(
-                                                        color: Colors.grey,
-                                                      )
-                                                    : Image.network(
-                                                        detail.profileImageUrl,
-                                                        fit: BoxFit.cover,
+                          child: FutureBuilder(
+                              future: postReference
+                                  .where('uid', isEqualTo: user!.uid)
+                                  .get(),
+                              builder: (context,
+                                      AsyncSnapshot<QuerySnapshot> snapshot) =>
+                                  snapshot.data != null
+                                      ? ListView.builder(
+                                          itemCount: snapshot.data!.docs.length,
+                                          itemBuilder: (context, index) {
+                                            Map<String, dynamic> data = snapshot
+                                                .data!.docs[index]
+                                                .data() as Map<String, dynamic>;
+                                            PostModel postDetail =
+                                                PostModel.fromJson(
+                                                    data,
+                                                    snapshot
+                                                        .data!.docs[index].id);
+
+                                            return Card(
+                                              child: SizedBox(
+                                                height: 350,
+                                                child: Column(
+                                                  children: [
+                                                    ListTile(
+                                                      leading: ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(100),
+                                                        child: SizedBox(
+                                                          height: 50,
+                                                          width: 50,
+                                                          child:
+                                                              // ignore: unnecessary_null_comparison
+                                                              postDetail.userImageUrl ==
+                                                                      ""
+                                                                  ? Container(
+                                                                      color: Colors
+                                                                          .grey,
+                                                                    )
+                                                                  : Image
+                                                                      .network(
+                                                                      postDetail
+                                                                          .userImageUrl,
+                                                                      fit: BoxFit
+                                                                          .cover,
+                                                                    ),
+                                                        ),
                                                       ),
-                                          ),
-                                        ),
-                                        title: Text(detail.name),
-                                        subtitle: Text(detail.email),
-                                      ),
-                                      Expanded(
-                                          // ignore: unnecessary_null_comparison
-                                          child: detail.profileImageUrl == null
-                                              ? Container(
-                                                  color: Colors.grey,
-                                                )
-                                              : Container(
-                                                  decoration: BoxDecoration(
-                                                      image: DecorationImage(
-                                                    image: NetworkImage(
-                                                        detail.coverImageUrl),
-                                                    fit: BoxFit.cover,
-                                                  )),
-                                                )),
-                                      const SizedBox(
-                                        height: 15,
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceAround,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              const SizedBox(
-                                                width: 8,
+                                                      title: Text(
+                                                          postDetail.username),
+                                                      subtitle: Text(postDetail
+                                                          .datetimepost),
+                                                    ),
+                                                    Expanded(
+                                                        child: postDetail
+                                                                    .postImageUrl ==
+                                                                ""
+                                                            ? Container(
+                                                                color:
+                                                                    Colors.grey,
+                                                              )
+                                                            : Container(
+                                                                decoration:
+                                                                    BoxDecoration(
+                                                                        image:
+                                                                            DecorationImage(
+                                                                  image:
+                                                                      NetworkImage(
+                                                                    postDetail
+                                                                        .postImageUrl,
+                                                                  ),
+                                                                  fit: BoxFit
+                                                                      .cover,
+                                                                )),
+                                                              )),
+                                                    const SizedBox(
+                                                      height: 15,
+                                                    ),
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceAround,
+                                                      children: [
+                                                        Row(
+                                                          children: [
+                                                            const SizedBox(
+                                                              width: 8,
+                                                            ),
+                                                            IconButton(
+                                                                onPressed:
+                                                                    () {},
+                                                                icon:
+                                                                    const Icon(
+                                                                  MdiIcons
+                                                                      .thumbUp,
+                                                                  color: Colors
+                                                                      .grey,
+                                                                )),
+                                                            const Text(
+                                                              "Like",
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .grey),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        const SizedBox(
+                                                          width: 8,
+                                                        ),
+                                                        Row(
+                                                          children: [
+                                                            IconButton(
+                                                                onPressed: () {
+                                                                  Get.to(CommentsBoxScreen(
+                                                                      postdetail:
+                                                                          postDetail,
+                                                                      userdetail:
+                                                                          detail));
+                                                                },
+                                                                icon:
+                                                                    const Icon(
+                                                                  MdiIcons
+                                                                      .comment,
+                                                                  color: Colors
+                                                                      .grey,
+                                                                )),
+                                                            const Text(
+                                                              "Comments",
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .grey),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        const SizedBox(
+                                                          width: 8,
+                                                        ),
+                                                        Row(
+                                                          children: [
+                                                            IconButton(
+                                                                onPressed:
+                                                                    () {},
+                                                                icon:
+                                                                    const Icon(
+                                                                  MdiIcons
+                                                                      .share,
+                                                                  color: Colors
+                                                                      .grey,
+                                                                )),
+                                                            const Text(
+                                                              "Share",
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .grey),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    const SizedBox(
+                                                      height: 15,
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
-                                              IconButton(
-                                                  onPressed: () {},
-                                                  icon: const Icon(
-                                                    MdiIcons.thumbUp,
-                                                    color: Colors.grey,
-                                                  )),
-                                              const Text(
-                                                "Like",
-                                                style: TextStyle(
-                                                    color: Colors.grey),
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(
-                                            width: 8,
-                                          ),
-                                          Row(
-                                            children: [
-                                              IconButton(
-                                                  onPressed: () {
-                                                    Get.to(
-                                                        const CommentsScreen());
-                                                  },
-                                                  icon: const Icon(
-                                                    MdiIcons.comment,
-                                                    color: Colors.grey,
-                                                  )),
-                                              const Text(
-                                                "Comments",
-                                                style: TextStyle(
-                                                    color: Colors.grey),
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(
-                                            width: 8,
-                                          ),
-                                          Row(
-                                            children: [
-                                              IconButton(
-                                                  onPressed: () {},
-                                                  icon: const Icon(
-                                                    MdiIcons.share,
-                                                    color: Colors.grey,
-                                                  )),
-                                              const Text(
-                                                "Share",
-                                                style: TextStyle(
-                                                    color: Colors.grey),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(
-                                        height: 15,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
+                                            );
+                                          },
+                                        )
+                                      : const Center(
+                                          child: Text("No Posts"),
+                                        )),
                         ),
                       ]);
                     }));

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:getx_project/controller/forgot_password_controller.dart';
+
 import 'package:getx_project/screens/sign_in.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
@@ -52,6 +53,7 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                               setState(() {
                                 isLoading = false;
                               });
+                              // Get.to(const SignInScreen());
                               Get.to(const SignInScreen());
                             } else {
                               setState(() {

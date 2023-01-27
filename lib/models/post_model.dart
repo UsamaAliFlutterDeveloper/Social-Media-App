@@ -20,7 +20,8 @@ class PostModel {
     posttext = doc['posttext'] ?? "";
     datetimepost = doc['datetimepost'] ?? "";
     uid = doc['uid'] ?? "";
-    userImageUrl = doc['userImageUrl'] ?? "";
+    userImageUrl = doc['userImageUrl'] ??
+        "https://e7.pngegg.com/pngimages/178/595/png-clipart-user-profile-computer-icons-login-user-avatars-monochrome-black-thumbnail.png";
     postImageUrl = doc['postImageUrl'] ?? "";
     id = docId;
   }

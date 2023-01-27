@@ -37,13 +37,17 @@ class LoginScreenController extends GetxController {
   ////////////////////////Validation for Password///////////////////////////
 
   String? validatePassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return "Enter Your Password";
+    RegExp regex =
+        RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$');
+    if (value!.isEmpty) {
+      return 'Please enter password';
+    } else {
+      if (!regex.hasMatch(value)) {
+        return 'Enter valid password';
+      } else {
+        return null;
+      }
     }
-    if (value.length < 8) {
-      return "Enter Valid Password";
-    }
-    return null;
   }
 
   ////////////////on pressed method for button//////////////////

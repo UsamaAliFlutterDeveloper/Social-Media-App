@@ -2,15 +2,19 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:getx_project/controller/create_post_controller.dart';
+import 'package:getx_project/controller/post_controller.dart';
 import 'package:getx_project/models/post_model.dart';
 
+import 'package:getx_project/screens/chats/rooms.dart';
+
 import 'package:getx_project/screens/comment_screen.dart';
+import 'package:getx_project/screens/create_post_screen.dart';
 import 'package:getx_project/screens/sign_in.dart';
 
 import 'package:getx_project/screens/user_profile_screen.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import '../Models/user_model.dart';
+
+import '../models/user_model_meta_data.dart';
 
 class AllPostScreen extends StatefulWidget {
   const AllPostScreen({
@@ -22,37 +26,73 @@ class AllPostScreen extends StatefulWidget {
 }
 
 class _AllPostScreenState extends State<AllPostScreen> {
+  // late final UserModelFireBase dataOfUser;
+
   final auth = FirebaseAuth.instance;
   CollectionReference userReference =
       FirebaseFirestore.instance.collection("users");
   CollectionReference postsReference =
       FirebaseFirestore.instance.collection("posts");
   User? user = FirebaseAuth.instance.currentUser;
-  Future<UserModelFireBase> getdata() async {
+  Future<UserProfileModel> getdata() async {
     DocumentSnapshot ref = await userReference.doc(user!.uid).get();
-    UserModelFireBase data = UserModelFireBase.fromDocumentSnapshot(ref);
+    // ignore: unused_local_variable
+    UserProfileModel data = UserProfileModel.fromDocumentSnapshot(ref);
+
     return data;
+  }
+
+  getUserData() async {
+    CollectionReference userReference =
+        FirebaseFirestore.instance.collection("users");
+    // ignore: unused_local_variable
+    DocumentSnapshot ref = await userReference.doc(user!.uid).get();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // ignore: unused_local_variable
+    var res = getdata();
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<UserModelFireBase>(
+    return FutureBuilder(
         future: getdata(),
-        builder:
-            (BuildContext context, AsyncSnapshot<UserModelFireBase> snapshot) {
+        builder: (BuildContext context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Scaffold();
+            return Scaffold(
+              backgroundColor: Colors.white,
+              body: FutureBuilder(
+                  future: userReference.doc(user!.uid).get(),
+                  builder: (context, snapshot) {
+                    UserProfileModel detail =
+                        UserProfileModel.fromDocumentSnapshot(snapshot.data!);
+                    return Center(
+                      child: TextButton(
+                          onPressed: () {
+                            CreatePostScreen(
+                              userDetail: detail,
+                            );
+                          },
+                          child: const Text("New post")),
+                    );
+                  }),
+            );
           }
 
           if (snapshot.connectionState == ConnectionState.done) {
-            UserModelFireBase detail = snapshot.data!;
+            // UserProfileModel data = snapshot.data!;
+            UserProfileModel userdetail = snapshot.data!;
+
             return GetBuilder<CreatePostControllerFirebase>(
                 init: CreatePostControllerFirebase(),
                 builder: (_) {
                   return MaterialApp(
                     debugShowCheckedModeBanner: false,
                     home: DefaultTabController(
-                      length: 3,
+                      length: 4,
                       child: Scaffold(
                         appBar: AppBar(
                           backgroundColor: const Color(0xfffbbb04),
@@ -78,7 +118,17 @@ class _AllPostScreenState extends State<AllPostScreen> {
                                       ),
                                       Tab(
                                         icon: IconButton(
-                                            onPressed: () {},
+                                            onPressed: () {
+                                              Get.offAll(const RoomsPage());
+                                            },
+                                            icon: const Icon(Icons.chat)),
+                                      ),
+                                      Tab(
+                                        icon: IconButton(
+                                            onPressed: () {
+                                              Get.offAll(CreatePostScreen(
+                                                  userDetail: userdetail));
+                                            },
                                             icon: const Icon(Icons.post_add)),
                                       ),
                                     ],
@@ -97,13 +147,12 @@ class _AllPostScreenState extends State<AllPostScreen> {
                                                 width: 50,
                                                 child:
                                                     // ignore: unnecessary_null_comparison
-                                                    detail.profileImageUrl ==
-                                                            null
+                                                    userdetail.firstName == null
                                                         ? Container(
                                                             color: Colors.grey,
                                                           )
                                                         : Image.network(
-                                                            detail
+                                                            userdetail
                                                                 .profileImageUrl,
                                                             fit: BoxFit.cover,
                                                           ),
@@ -160,8 +209,8 @@ class _AllPostScreenState extends State<AllPostScreen> {
                           actions: [
                             IconButton(
                                 onPressed: () {
-                                  auth.signOut().then(
-                                      (value) => Get.to(const SignInScreen()));
+                                  auth.signOut().then((value) =>
+                                      Get.offAll(const SignInScreen()));
                                 },
                                 icon: const Icon(Icons.logout))
                           ],
@@ -284,7 +333,12 @@ class _AllPostScreenState extends State<AllPostScreen> {
                                                         IconButton(
                                                             onPressed: () {
                                                               Get.to(
-                                                                  const CommentsScreen());
+                                                                  CommentsBoxScreen(
+                                                                postdetail:
+                                                                    postDetail,
+                                                                userdetail:
+                                                                    userdetail,
+                                                              ));
                                                             },
                                                             icon: const Icon(
                                                               MdiIcons.comment,
@@ -342,8 +396,11 @@ class _AllPostScreenState extends State<AllPostScreen> {
                           ],
                         ),
                         floatingActionButton: FloatingActionButton(
+                          backgroundColor: Colors.amber,
                           onPressed: () {},
-                          child: const Icon(MdiIcons.bookEdit),
+                          child: const Icon(
+                            MdiIcons.bookEdit,
+                          ),
                         ),
                       ),
                     ),

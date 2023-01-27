@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:getx_project/controller/login_screen_controller.dart';
-import 'package:getx_project/screens/home_screen.dart';
 
 import 'package:getx_project/screens/phone_no_registration_screen.dart';
+import 'package:getx_project/screens/show_all_post_screen.dart';
 
 import 'package:getx_project/screens/user_profile_screen.dart';
 import 'package:getx_project/screens/welcome_screen.dart';
@@ -137,7 +137,7 @@ class SignInScreen extends StatelessWidget {
                                   _.loginUser(
                                       email: _.emailController.text,
                                       password: _.passwordController.text);
-                                  Get.to(const HomeScreen());
+                                  Get.to(const AllPostScreen());
                                   _.onpressed();
                                 }
                               },

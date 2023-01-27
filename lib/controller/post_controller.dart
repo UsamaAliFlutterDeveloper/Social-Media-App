@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
 class CreatePostControllerFirebase extends GetxController {
   TextEditingController postTextcontroller = TextEditingController();
@@ -56,17 +57,21 @@ class CreatePostControllerFirebase extends GetxController {
     }
   }
 
-  void addPostToFirestore(
-      {required String posttext,
-      required String userimageurl,
-      required String username}) async {
+  void addPostToFirestore({
+    required String posttext,
+    required String userimageurl,
+    required String username,
+  }) async {
     User? user = FirebaseAuth.instance.currentUser;
+    // ignore: non_constant_identifier_names
+    DateTime now = DateTime.now();
+    String formattedDate = DateFormat('yyyy-MM-dd – kk:mm').format(now);
     // ignore: non_constant_identifier_names
     String UniqueName = DateTime.now().microsecondsSinceEpoch.toString();
 
     final storageRef = FirebaseStorage.instance
         .ref()
-        .child("UsersProfilePhoto/")
+        .child("UsersPostsImages/")
         .child("/$UniqueName");
     try {
       // store the file
@@ -83,16 +88,14 @@ class CreatePostControllerFirebase extends GetxController {
           uid = user.uid;
         }
         debugPrint("uid:$uid");
-        // var format = DateFormat.yMd('ar');
-        // var nowdatetime = format.format(DateTime.now());
-        String nowdatetime = DateTime.now().microsecondsSinceEpoch.toString();
+
         Map<String, dynamic> data = {
           "uid": uid,
           "posttext": posttext,
           "userImageUrl": userimageurl,
-          "datetimepost": nowdatetime,
+          "datetimepost": formattedDate,
           "username": username,
-          "postImageUrl": imagePostUrl
+          "postImageUrl": imagePostUrl,
         };
 
         postsReference

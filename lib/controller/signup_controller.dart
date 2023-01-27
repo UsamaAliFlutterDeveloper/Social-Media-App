@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_firebase_chat_core/flutter_firebase_chat_core.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 
 class SignupScreenController extends GetxController {
   TextEditingController emailController = TextEditingController();
@@ -33,13 +35,17 @@ class SignupScreenController extends GetxController {
   ////////////////////////Validation for Password///////////////////////////
 
   String? validatePassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return "Enter Your Password";
+    RegExp regex =
+        RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$');
+    if (value!.isEmpty) {
+      return 'Please enter password';
+    } else {
+      if (!regex.hasMatch(value)) {
+        return 'Enter valid password';
+      } else {
+        return null;
+      }
     }
-    if (value.length < 8) {
-      return "Enter Valid Password";
-    }
-    return null;
   }
   ////////////////////////Validation for UserName///////////////////////////
 
@@ -78,6 +84,7 @@ class SignupScreenController extends GetxController {
 ///////////////////////////firebase authentication//////////////////////////
   static CollectionReference userReference =
       FirebaseFirestore.instance.collection("users");
+
   Future<bool> signUpUser({
     required String email,
     required String password,
@@ -94,16 +101,27 @@ class SignupScreenController extends GetxController {
       );
       User? currentUser = credential.user;
       if (currentUser != null) {
-        DocumentReference currentUserReference =
-            userReference.doc(currentUser.uid);
-        Map<String, dynamic> userProfileData = {
-          "name": fullName.capitalize,
-          "password": password,
+        Map<String, dynamic> userMetaData = {
           "phone": phoneNo,
           "email": email,
-          "uid": currentUser.uid,
+          "user": currentUser.uid,
         };
-        await currentUserReference.set(userProfileData);
+        await FirebaseChatCore.instance.createUserInFirestore(
+          types.User(
+              firstName: fullName,
+              id: credential.user!.uid,
+              metadata: userMetaData),
+        );
+        // DocumentReference currentUserReference =
+        //     userReference.doc(currentUser.uid);
+        // Map<String, dynamic> userProfileData = {
+        //   "name": fullName.capitalize,
+        //   "password": password,
+        //   "phone": phoneNo,
+        //   "email": email,
+        //   "uid": currentUser.uid,
+        // };
+        // await currentUserReference.set(userProfileData);
       }
       status = true;
     } on FirebaseAuthException catch (e) {

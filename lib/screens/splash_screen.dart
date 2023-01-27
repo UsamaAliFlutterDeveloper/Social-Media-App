@@ -3,7 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:get/get.dart';
-import 'package:getx_project/screens/home_screen.dart';
+
+import 'package:getx_project/screens/show_all_post_screen.dart';
 import 'package:getx_project/screens/welcome_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -21,7 +22,7 @@ class _SplashScreenState extends State<SplashScreen> {
     final user = auth.currentUser;
     if (user != null) {
       Timer(const Duration(seconds: 6), () {
-        Get.to(const HomeScreen());
+        Get.to(const AllPostScreen());
       });
     } else {
       Timer(const Duration(seconds: 6), () {

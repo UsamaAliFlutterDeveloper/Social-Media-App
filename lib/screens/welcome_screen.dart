@@ -100,7 +100,8 @@ class WelcomeScreen extends StatelessWidget {
                         children: [
                           GestureDetector(
                             onTap: () {
-                              Get.to(const SignInScreen());
+                              // Get.to(const SignInScreen());
+                              Get.offAll(const SignInScreen());
                             },
                             child: CustomButton(
                                 buttonText: 'Sign In',
@@ -109,7 +110,8 @@ class WelcomeScreen extends StatelessWidget {
                           ),
                           GestureDetector(
                             onTap: () {
-                              Get.to(const SignUpScreen());
+                              // Get.to(const SignUpScreen());
+                              Get.offAll(const SignUpScreen());
                             },
                             child: CustomButton(
                                 buttonText: 'Sign Up',

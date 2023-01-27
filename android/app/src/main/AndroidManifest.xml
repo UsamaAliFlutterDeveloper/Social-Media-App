@@ -1,5 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.getx_project">   
+    package="com.example.getx_project">  
+    <uses-permission  android:name="android.permission.READ_PHONE_STATE"/>
+<uses-permission  android:name="android.permission.INTERNET"  />
+<uses-permission  android:name="android.permission.RECORD_AUDIO"  />
+<uses-permission  android:name="android.permission.CAMERA"  />
+<uses-permission  android:name="android.permission.MODIFY_AUDIO_SETTINGS"  />
+<uses-permission  android:name="android.permission.ACCESS_NETWORK_STATE"  />
+<!-- The Agora SDK requires Bluetooth permissions in case users are using Bluetooth devices.-->
+<uses-permission  android:name="android.permission.BLUETOOTH"  /> 
 <uses-permission android:name="android.permission.INTERNET"/>
 <queries>
         <provider android:authorities="com.facebook.katana.provider.PlatformProvider" />
@@ -24,6 +32,10 @@
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
               />
+            <meta-data
+                android:name="com.google.firebase.messaging.default_notification_channel_id"
+                android:value="pushnotificationapp"/>
+                
               <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
 <meta-data android:name="com.facebook.sdk.ClientToken" android:value="@string/facebook_client_token"/>
             <intent-filter>

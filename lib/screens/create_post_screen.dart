@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:getx_project/models/user_model.dart';
+
+import 'package:getx_project/models/user_model_meta_data.dart';
+import 'package:getx_project/screens/show_all_post_screen.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-import '../controller/create_post_controller.dart';
+import '../controller/post_controller.dart';
 
 class CreatePostScreen extends StatefulWidget {
   const CreatePostScreen({
@@ -11,7 +13,7 @@ class CreatePostScreen extends StatefulWidget {
     required this.userDetail,
   });
 
-  final UserModelFireBase userDetail;
+  final UserProfileModel userDetail;
 
   @override
   State<CreatePostScreen> createState() => _CreatePostScreenState();
@@ -24,6 +26,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       child: GetBuilder<CreatePostControllerFirebase>(
         init: CreatePostControllerFirebase(),
         builder: (_) => Scaffold(
+          resizeToAvoidBottomInset: false,
           body: Padding(
             padding: const EdgeInsets.all(10.0),
             child: Column(
@@ -33,7 +36,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                   children: [
                     InkWell(
                         onTap: () {
-                          Get.back();
+                          Get.offAll(const AllPostScreen());
                         },
                         child: const Icon(Icons.arrow_back)),
                     const SizedBox(
@@ -46,9 +49,10 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                           backgroundColor: Colors.grey),
                       onPressed: () {
                         _.addPostToFirestore(
-                            posttext: _.postTextcontroller.text,
-                            userimageurl: widget.userDetail.profileImageUrl,
-                            username: widget.userDetail.name);
+                          posttext: _.postTextcontroller.text,
+                          userimageurl: widget.userDetail.profileImageUrl,
+                          username: widget.userDetail.firstName,
+                        );
                       },
                       child: const Text('Post'),
                     )
@@ -68,11 +72,11 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                         height: 50,
                         width: 50,
                         child: Image.network(
-                          widget.userDetail.profileImageUrl,
+                          widget.userDetail.coverImageUrl,
                           fit: BoxFit.cover,
                         )),
                   ),
-                  title: Text(widget.userDetail.name),
+                  title: Text(widget.userDetail.firstName),
                   subtitle: Padding(
                     padding: const EdgeInsets.only(top: 10),
                     child: Row(
@@ -142,6 +146,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                   controller: _.postTextcontroller,
                   maxLines: 5,
                   decoration: const InputDecoration(
+                    enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(width: 1.5, color: Colors.grey)),
                     border: InputBorder.none,
                     hintText: 'What\'s on your Mind?',
                     hintStyle: TextStyle(fontSize: 20),
