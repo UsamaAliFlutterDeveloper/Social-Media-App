@@ -74,8 +74,6 @@ dependencies:
   flutter_local_notifications: ^9.2.0
 
 
-  
-
 dev_dependencies:
   flutter_test:
     sdk: flutter

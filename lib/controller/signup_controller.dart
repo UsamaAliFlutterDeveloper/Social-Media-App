@@ -47,6 +47,7 @@ class SignupScreenController extends GetxController {
       }
     }
   }
+
   ////////////////////////Validation for UserName///////////////////////////
 
   String? validateName(String? value) {
@@ -58,6 +59,7 @@ class SignupScreenController extends GetxController {
     }
     return null;
   }
+
   ////////////////////////Validation for Phone No///////////////////////////
 
   String? validatePhone(String? value) {
@@ -104,12 +106,15 @@ class SignupScreenController extends GetxController {
         Map<String, dynamic> userMetaData = {
           "phone": phoneNo,
           "email": email,
-          "user": currentUser.uid,
+          "gender": "",
+          "education": "",
         };
         await FirebaseChatCore.instance.createUserInFirestore(
           types.User(
               firstName: fullName,
               id: credential.user!.uid,
+              imageUrl: 'https://i.pravatar.cc/300?u=$email',
+              lastName: fullName,
               metadata: userMetaData),
         );
         // DocumentReference currentUserReference =

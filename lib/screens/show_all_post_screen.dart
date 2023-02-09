@@ -49,11 +49,20 @@ class _AllPostScreenState extends State<AllPostScreen> {
     DocumentSnapshot ref = await userReference.doc(user!.uid).get();
   }
 
+  late final userID;
+
   @override
   void initState() {
     super.initState();
     // ignore: unused_local_variable
     var res = getdata();
+  }
+
+  getUser() {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      userID = currentUser.uid;
+    }
   }
 
   @override
@@ -65,7 +74,7 @@ class _AllPostScreenState extends State<AllPostScreen> {
             return Scaffold(
               backgroundColor: Colors.white,
               body: FutureBuilder(
-                  future: userReference.doc(user!.uid).get(),
+                  future: userReference.doc(userID).get(),
                   builder: (context, snapshot) {
                     UserProfileModel detail =
                         UserProfileModel.fromDocumentSnapshot(snapshot.data!);
@@ -128,6 +137,8 @@ class _AllPostScreenState extends State<AllPostScreen> {
                                             onPressed: () {
                                               Get.offAll(CreatePostScreen(
                                                   userDetail: userdetail));
+
+                                              Get.to(const RoomsPage());
                                             },
                                             icon: const Icon(Icons.post_add)),
                                       ),

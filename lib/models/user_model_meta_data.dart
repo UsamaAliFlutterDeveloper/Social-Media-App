@@ -95,7 +95,7 @@ class Metadata {
     // lng = json['lng']??"";
     phone = json['phone'] ?? "";
     email = json['email'] ?? "";
-    uid = json['uid'] ?? "";
+    uid = json['user'] ?? "";
   }
 
   Map<String, dynamic> toJson() {
